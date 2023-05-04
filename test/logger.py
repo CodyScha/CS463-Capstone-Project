@@ -107,7 +107,7 @@ last_email_time = datetime.utcnow()
 
 # initialize some timeframes
 screenshot_interval = 5
-email_interval = 60 * 0.2
+email_interval = 60 * 1
 
 # Main loop to check timestamps for screenshots and email sending
 while True:
