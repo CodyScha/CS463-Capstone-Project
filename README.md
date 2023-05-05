@@ -6,4 +6,4 @@
 
     pyinstaller --onefile logger.py
 
-    
+In the current state of this project, Windows persistence will not work when ran as an executable. 

